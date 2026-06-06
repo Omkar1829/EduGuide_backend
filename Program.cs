@@ -1,6 +1,7 @@
 using EduGuide_Backend.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using EduGuide_Backend.Models;
 using Microsoft.IdentityModel.Tokens;
 namespace EduGuide_Backend
 {
@@ -17,10 +18,15 @@ namespace EduGuide_Backend
             builder.Services.AddOpenApi();
 
             // PostgreSQL DbContext
-            builder.Services.AddDbContext<AppDbContext>(options =>
+            //builder.Services.AddDbContext<AppDbContext>(options =>
+            //    options.UseNpgsql(
+            //        builder.Configuration.GetConnectionString("constr")
+            //    ));
+
+            builder.Services.AddDbContext<EgaidbContext>(options =>
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("constr")
-                ));
+                 ));
 
             builder.Services.AddAuthentication(options =>
             {
@@ -58,10 +64,10 @@ namespace EduGuide_Backend
 
             app.UseAuthorization();
 
-            app.MapControllers();
-
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.MapControllers();
 
 
             app.Run();
