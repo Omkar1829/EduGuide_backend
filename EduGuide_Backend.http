@@ -1,0 +1,6 @@
+@EduGuide_Backend_HostAddress = http://localhost:5023
+
+GET {{EduGuide_Backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
