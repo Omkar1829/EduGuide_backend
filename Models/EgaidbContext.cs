@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -70,8 +70,8 @@ public partial class EgaidbContext : DbContext
             .HasPostgresEnum("RecommendationStatus", new[] { "PENDING", "ACCEPTED", "REJECTED", "EXPIRED" })
             .HasPostgresEnum("RecommendationType", new[] { "CAREER", "STREAM", "COURSE", "SKILL", "JOB" })
             .HasPostgresEnum("ResumeStatus", new[] { "PENDING", "ANALYZED", "FAILED" })
-            .HasPostgresEnum("SubscriptionTier", new[] { "NEWBIE", "PRO", "PRO_PLUS" })
-            .HasPostgresEnum("UserRole", new[] { "STUDENT", "ADMIN" });
+            .HasPostgresEnum<SubscriptionTier>(null, "SubscriptionTier")
+            .HasPostgresEnum<UserRole>(null, "UserRole");
 
         modelBuilder.Entity<AcademicRecord>(entity =>
         {
@@ -773,6 +773,10 @@ public partial class EgaidbContext : DbContext
                 .HasColumnName("lastLoginAt");
             entity.Property(e => e.LastName).HasColumnName("lastName");
             entity.Property(e => e.PasswordHash).HasColumnName("passwordHash");
+            entity.Property(e => e.Role)
+                .HasColumnName("role");
+            entity.Property(e => e.SubscriptionTier)
+                .HasColumnName("subscriptionTier");
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp(3) without time zone")
                 .HasColumnName("updatedAt");

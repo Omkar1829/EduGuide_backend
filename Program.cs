@@ -1,14 +1,16 @@
-using EduGuide_Backend.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using EduGuide_Backend.Models;
+using EduGuide_Backend.Services;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 namespace EduGuide_Backend
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             var builder = WebApplication.CreateBuilder(args);
 
             // Controllers
@@ -17,16 +19,23 @@ namespace EduGuide_Backend
             // OpenAPI  
             builder.Services.AddOpenApi();
 
-            // PostgreSQL DbContext
-            //builder.Services.AddDbContext<AppDbContext>(options =>
-            //    options.UseNpgsql(
-            //        builder.Configuration.GetConnectionString("constr")
-            //    ));
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(
+                builder.Configuration.GetConnectionString("constr"));
+            dataSourceBuilder.EnableUnmappedTypes();
+            dataSourceBuilder.MapEnum<UserRole>("UserRole");
+            dataSourceBuilder.MapEnum<SubscriptionTier>("SubscriptionTier");
+            var dataSource = dataSourceBuilder.Build();
 
             builder.Services.AddDbContext<EgaidbContext>(options =>
-                options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("constr")
-                 ));
+                options.UseNpgsql(dataSource, o =>
+                {
+                    o.MapEnum<UserRole>("UserRole");
+                    o.MapEnum<SubscriptionTier>("SubscriptionTier");
+                }));
+
+            builder.Services.AddScoped<IPasswordService, PasswordService>();
+            builder.Services.AddScoped<IJwtService, JwtService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -39,8 +48,8 @@ namespace EduGuide_Backend
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = builder.Configuration["Issuer"],
-                    ValidAudience = builder.Configuration["Audience"],
+                    ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+                    ValidAudience = builder.Configuration["JwtConfig:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Secret"]!)),
                     ValidateIssuer = true,
                     ValidateAudience = true,
@@ -60,15 +69,35 @@ namespace EduGuide_Backend
                 app.MapOpenApi();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
 
+            try
+            {
+                using (var conn = new Npgsql.NpgsqlConnection(builder.Configuration.GetConnectionString("constr")))
+                {
+                    conn.Open();
+                    using (var cmd = new Npgsql.NpgsqlCommand("SELECT enumlabel FROM pg_enum WHERE enumtypid = '\"UserRole\"'::regtype;", conn))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Console.WriteLine($"[DIAGNOSTIC] UserRole value: {reader.GetString(0)}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DIAGNOSTIC] Failed to query pg_enum: {ex.Message}");
+            }
 
             app.Run();
         }

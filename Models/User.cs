@@ -15,6 +15,10 @@ public partial class User
 
     public string LastName { get; set; } = null!;
 
+    public UserRole Role { get; set; }
+
+    public SubscriptionTier SubscriptionTier { get; set; } = SubscriptionTier.NEWBIE;
+
     public bool IsVerified { get; set; }
 
     public bool IsActive { get; set; }

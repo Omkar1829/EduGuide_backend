@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using EduGuide_Backend.Data;
 using EduGuide_Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace EduGuide_Backend.Controllers
