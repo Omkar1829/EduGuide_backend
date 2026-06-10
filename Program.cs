@@ -24,6 +24,8 @@ namespace EduGuide_Backend
             dataSourceBuilder.EnableUnmappedTypes();
             dataSourceBuilder.MapEnum<UserRole>("UserRole");
             dataSourceBuilder.MapEnum<SubscriptionTier>("SubscriptionTier");
+            dataSourceBuilder.MapEnum<Gender>("Gender");
+            dataSourceBuilder.MapEnum<AcademicYear>("AcademicYear");
             var dataSource = dataSourceBuilder.Build();
 
             builder.Services.AddDbContext<EgaidbContext>(options =>
@@ -31,11 +33,14 @@ namespace EduGuide_Backend
                 {
                     o.MapEnum<UserRole>("UserRole");
                     o.MapEnum<SubscriptionTier>("SubscriptionTier");
+                    o.MapEnum<Gender>("Gender");
+                    o.MapEnum<AcademicYear>("AcademicYear");
                 }));
 
             builder.Services.AddScoped<IPasswordService, PasswordService>();
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
 
             builder.Services.AddAuthentication(options =>
             {

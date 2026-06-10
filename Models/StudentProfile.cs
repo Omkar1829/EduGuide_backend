@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace EduGuide_Backend.Models;
@@ -10,6 +10,8 @@ public partial class StudentProfile
     public Guid UserId { get; set; }
 
     public DateTime? DateOfBirth { get; set; }
+
+    public Gender? Gender { get; set; }
 
     public string? PhoneNumber { get; set; }
 

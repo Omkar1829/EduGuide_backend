@@ -62,9 +62,9 @@ public partial class EgaidbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .HasPostgresEnum("AcademicYear", new[] { "FRESHMAN", "SOPHOMORE", "JUNIOR", "SENIOR", "GRADUATE", "POST_GRADUATE" })
+            .HasPostgresEnum<AcademicYear>(null, "AcademicYear")
             .HasPostgresEnum("ChatRole", new[] { "USER", "ASSISTANT", "SYSTEM" })
-            .HasPostgresEnum("Gender", new[] { "MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY" })
+            .HasPostgresEnum<Gender>(null, "Gender")
             .HasPostgresEnum("NotificationType", new[] { "RECOMMENDATION", "QUIZ_RESULT", "ROADMAP_UPDATE", "COURSE_UPDATE", "JOB_ALERT", "SYSTEM", "CHAT" })
             .HasPostgresEnum("QuizCategory", new[] { "CAREER_INTEREST", "PERSONALITY", "SKILL_ASSESSMENT", "APTITUDE", "LEARNING_STYLE" })
             .HasPostgresEnum("RecommendationStatus", new[] { "PENDING", "ACCEPTED", "REJECTED", "EXPIRED" })
@@ -660,6 +660,7 @@ public partial class EgaidbContext : DbContext
             entity.Property(e => e.DateOfBirth)
                 .HasColumnType("timestamp(3) without time zone")
                 .HasColumnName("dateOfBirth");
+            entity.Property(e => e.Gender).HasColumnName("gender");
             entity.Property(e => e.PhoneNumber).HasColumnName("phoneNumber");
             entity.Property(e => e.ProfileComplete).HasColumnName("profileComplete");
             entity.Property(e => e.State).HasColumnName("state");
